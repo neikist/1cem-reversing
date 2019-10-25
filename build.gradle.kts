@@ -15,7 +15,7 @@ val localProperties = buildProperties["local"].asMap()
 val fileSrcApk = layout.projectDirectory.dir("sourceApk").asFileTree.singleFile
 val apkFilePath = fileSrcApk.path
 val apkName = fileSrcApk.nameWithoutExtension
-
+val packageName = "com.e1c.mobile"
 
 val androidSdkDir = localProperties["sdk.dir"]?.string?.trim() ?: error("Need define path to android sdk")
 
@@ -24,7 +24,8 @@ val keystorePassword = localProperties["keystore.password"]?.string?.trim() ?: e
 val keyAlias = localProperties["key.alias"]?.string?.trim() ?: error("Need define key alias")
 val keyPassword = localProperties["key.password"]?.string?.trim() ?: error("Need define key password")
 
-val buildToolsVersion = localProperties["buildToolsVersion"]?.string?.trim() ?: error("Need define sdk build tools version")
+val buildToolsVersion = localProperties["buildToolsVersion"]?.string?.trim()
+        ?: error("Need define sdk build tools version")
 
 val runOnWindows = runOnWindows()
 
@@ -88,26 +89,74 @@ tasks {
             commandLine(
                     "PowerShell",
                     "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}apksigner.bat sign"
-                    + " --ks $keystorePath "
-                + " --ks-key-alias $keyAlias "
-                + " --ks-pass pass:$keystorePassword "
-                + " --key-pass pass:$keyPassword "
-                + apktoolPackDestinationDir
+                            + " --ks $keystorePath "
+                            + " --ks-key-alias $keyAlias "
+                            + " --ks-pass pass:$keystorePassword "
+                            + " --key-pass pass:$keyPassword "
+                            + apktoolPackDestinationDir
             )
         } else {
             executable("sh")
             args("-c", "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}apksigner sign"
-                + " --ks $keystorePath "
-                + " --ks-key-alias $keyAlias "
-                + " --ks-pass pass:$keystorePassword "
-                + " --key-pass pass:$keyPassword "
-                + apktoolPackDestinationDir
+                    + " --ks $keystorePath "
+                    + " --ks-key-alias $keyAlias "
+                    + " --ks-pass pass:$keystorePassword "
+                    + " --key-pass pass:$keyPassword "
+                    + apktoolPackDestinationDir
             )
         }
 
     }
-
     assemble.get().dependsOn(sign)
+
+    val installApk = task("installApk", type = Exec::class) {
+        //        dependsOn(assemble.get())
+        if (runOnWindows) {
+            commandLine(
+                    "PowerShell",
+                    "adb install ${layout.buildDirectory.file("$apkName.apk").get().asFile.path}"
+            )
+        } else {
+            executable("sh")
+            args("-c", "")
+            TODO("Пока не реализовал")
+        }
+    }
+
+    val grantPermissionReadStorage = task("grantPermissionReadStorage", type = Exec::class) {
+        dependsOn(installApk)
+        commandLine(
+                "PowerShell",
+                "adb shell pm grant $packageName android.permission.READ_EXTERNAL_STORAGE"
+        )
+    }
+
+    val pathToCf = "/storage/emulated/0/Download"
+    val push1cCf = task("push1cCf", type = Exec::class) {
+        dependsOn(grantPermissionReadStorage)
+        commandLine(
+                "PowerShell",
+                "adb push ${layout.projectDirectory.dir("src/1cConfiguration").asFile.path} $pathToCf"
+        )
+    }
+
+    val run1cApk = task("run1cApk", type = Exec::class) {
+        dependsOn(push1cCf)
+        commandLine(
+                "PowerShell",
+                "adb shell am start -n com.e1c.mobile/.App -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+        )
+
+    }
+
+    val runOnDevice = task("runOnDevice", type = Exec::class) {
+        dependsOn(run1cApk)
+        commandLine(
+                "PowerShell",
+                "adb shell am broadcast -n com.e1c.mobile/.Starter -a com.e1c.mobile.START_TEMPLATE -e templatepath $pathToCf/1cConfiguration/1cema.xml "
+        )
+    }
+    
 }
 
 fun runOnWindows(): Boolean = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")

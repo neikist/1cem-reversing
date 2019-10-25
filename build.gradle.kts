@@ -48,6 +48,7 @@ tasks {
     }
 
     val copySmaliFiles = task("copySmaliFiles", type = Copy::class) {
+        dependsOn(unpack)
 
         from(layout.projectDirectory.dir("src/smali").asFile.path) {
             include("**/*.smali")
@@ -56,9 +57,20 @@ tasks {
         destinationDir = layout.buildDirectory.dir("unpacked/smali").get().asFile
     }
 
+    val copyResFiles = task("copyResFiles", type = Copy::class) {
+        dependsOn(unpack)
+
+        from(layout.projectDirectory.dir("src/res").asFile.path) {
+            include("**/*")
+        }
+
+        destinationDir = layout.buildDirectory.dir("unpacked/res").get().asFile
+    }
+
     val apktoolPackDestinationDir = "${layout.buildDirectory.get().asFile.path}${File.separator}$apkName.apk"
     val pack = task("pack", type = Exec::class) {
         dependsOn(copySmaliFiles)
+        dependsOn(copyResFiles)
 
         if (runOnWindows) {
             commandLine("PowerShell", "apktool.bat  b $apktoolUnpackDestinationDir -o $apktoolPackDestinationDir")

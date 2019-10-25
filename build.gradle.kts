@@ -17,14 +17,14 @@ val apkFilePath = fileSrcApk.path
 val apkName = fileSrcApk.nameWithoutExtension
 
 
-val androidSdkDir = localProperties["sdk.dir"]?.string ?: error("Need define path to android sdk")
+val androidSdkDir = localProperties["sdk.dir"]?.string?.trim() ?: error("Need define path to android sdk")
 
-val keystorePath = localProperties["keystore.path"]?.string ?: error("Need define path to keystore")
-val keystorePassword = localProperties["keystore.password"]?.string ?: error("Need define keystore password")
-val keyAlias = localProperties["key.alias"]?.string ?: error("Need define key alias")
-val keyPassword = localProperties["key.password"]?.string ?: error("Need define key password")
+val keystorePath = localProperties["keystore.path"]?.string?.trim() ?: error("Need define path to keystore")
+val keystorePassword = localProperties["keystore.password"]?.string?.trim() ?: error("Need define keystore password")
+val keyAlias = localProperties["key.alias"]?.string?.trim() ?: error("Need define key alias")
+val keyPassword = localProperties["key.password"]?.string?.trim() ?: error("Need define key password")
 
-val buildToolsVersion = localProperties["buildToolsVersion"]?.string ?: error("Need define sdk build tools version")
+val buildToolsVersion = localProperties["buildToolsVersion"]?.string?.trim() ?: error("Need define sdk build tools version")
 
 val runOnWindows = runOnWindows()
 
@@ -35,15 +35,15 @@ tasks {
         }
     }
 
-    val apktoolUnpackDestinationDir = "${layout.buildDirectory.get().asFile.path}${File.separator}unpacked"
+    val apktoolUnpackDestinationDir = "${layout.buildDirectory.dir("unpacked").get().asFile.path}"
     val unpack = task("unpack", type = Exec::class) {
         doFirst {
             if (runOnWindows) {
-                commandLine("PowerShell", "apktool.bat")
+                commandLine("PowerShell", "apktool.bat", "-f", "d $apkFilePath", "-o $apktoolUnpackDestinationDir")
             } else {
-                commandLine("apktool")
+                executable("sh")
+                args("-c", "apktool -f d $apkFilePath -o $apktoolUnpackDestinationDir")
             }
-            args("-f", "d $apkFilePath", "-o $apktoolUnpackDestinationDir")
         }
     }
 
@@ -61,12 +61,11 @@ tasks {
         dependsOn(copySmaliFiles)
 
         if (runOnWindows) {
-            commandLine("PowerShell", "apktool.bat")
+            commandLine("PowerShell", "apktool.bat  b $apktoolUnpackDestinationDir -o $apktoolPackDestinationDir")
         } else {
-            commandLine("apktool")
+            executable("sh")
+            args("-c", "apktool b $apktoolUnpackDestinationDir -o $apktoolPackDestinationDir")
         }
-
-        args("b $apktoolUnpackDestinationDir", "-o $apktoolPackDestinationDir")
 
     }
 
@@ -77,16 +76,23 @@ tasks {
             commandLine(
                     "PowerShell",
                     "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}apksigner.bat sign"
+                    + " --ks $keystorePath "
+                + " --ks-key-alias $keyAlias "
+                + " --ks-pass pass:$keystorePassword "
+                + " --key-pass pass:$keyPassword "
+                + apktoolPackDestinationDir
             )
         } else {
-            commandLine("${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}apksigner sign")
+            executable("sh")
+            args("-c", "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}apksigner sign"
+                + " --ks $keystorePath "
+                + " --ks-key-alias $keyAlias "
+                + " --ks-pass pass:$keystorePassword "
+                + " --key-pass pass:$keyPassword "
+                + apktoolPackDestinationDir
+            )
         }
 
-        args(" --ks $keystorePath ",
-                " --ks-key-alias $keyAlias ",
-                " --ks-pass $keystorePassword ",
-                " --key-pass $keyPassword ",
-                apktoolPackDestinationDir)
     }
 
     assemble.get().dependsOn(sign)

@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MobileAppInfo xmlns="http://v8.1c.ru/8.3/mobile-application/app" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="geolabels" id="6e6f9513-296a-4ab2-852f-b35fc8fc3e0e" lastUpdateUUID="e4a6a15c-4953-4a7f-8676-1c7e932f17de" formatVersion="3" defaultLanguage="Language.Русский">
+	<synonym>
+		<item xmlns="http://v8.1c.ru/8.1/data/core">
+			<lang>ru</lang>
+			<content>Geolabels</content>
+		</item>
+	</synonym>
+	<language name="Русский" id="aedfa218-d9f3-452e-a64f-67785077a372" languageCode="ru">
+		<synonym>
+			<item xmlns="http://v8.1c.ru/8.1/data/core">
+				<lang>ru</lang>
+				<content>Русский</content>
+			</item>
+		</synonym>
+	</language>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Location</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Contacts</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Calendars</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">PushNotification</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">LocalNotification</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Print</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">InAppPurchases</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Ads</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">BackgroundLocation</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">BackgroundAudioPlayback</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">FileExchangeWithPersonalComputer</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">CallPhone</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">CallLog</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">HandlePhoneCalls</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">SendSMS</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">ReceiveSMS</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">SMSLog</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Camera</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">Microphone</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">MusicLibrary</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">PicturesAndVideoLibraries</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+	<requiredPermission>
+		<permission xmlns="http://v8.1c.ru/8.2/managed-application/core">AudioAndVibrationPlayback</permission>
+		<use xmlns="http://v8.1c.ru/8.2/managed-application/core">false</use>
+	</requiredPermission>
+</MobileAppInfo>

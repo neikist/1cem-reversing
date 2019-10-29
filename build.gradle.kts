@@ -30,21 +30,32 @@ val buildToolsVersion = localProperties["buildToolsVersion"]?.string?.trim()
 val runOnWindows = runOnWindows()
 
 tasks {
-    task("print") {
-        doLast {
-            println(apkName)
+
+    val apktoolUnpackDestinationDir = layout.buildDirectory.dir("unpacked").get().asFile.path
+    val unpack = task("unpack", type = Exec::class) {
+        if (runOnWindows) {
+            commandLine("PowerShell", "apktool.bat", "-f", "d $apkFilePath", "-o $apktoolUnpackDestinationDir")
+        } else {
+            executable("sh")
+            args("-c", "apktool -f d $apkFilePath -o $apktoolUnpackDestinationDir")
         }
     }
 
-    val apktoolUnpackDestinationDir = "${layout.buildDirectory.dir("unpacked").get().asFile.path}"
-    val unpack = task("unpack", type = Exec::class) {
-        doFirst {
-            if (runOnWindows) {
-                commandLine("PowerShell", "apktool.bat", "-f", "d $apkFilePath", "-o $apktoolUnpackDestinationDir")
-            } else {
-                executable("sh")
-                args("-c", "apktool -f d $apkFilePath -o $apktoolUnpackDestinationDir")
-            }
+    val extractDex = task("extractDex", type = Copy::class) {
+        from(zipTree(layout.projectDirectory.file(fileSrcApk.path))) {
+            include("**/*.dex")
+        }
+        into(layout.buildDirectory)
+    }
+    val jadx = task("jadx", type = Exec::class) {
+        dependsOn(extractDex)
+        if (runOnWindows) {
+            commandLine(
+                    "PowerShell",
+                    "jadx.bat --no-debug-info --no-res --show-bad-code -j 1 --fs-case-sensitive -d ${layout.buildDirectory.dir("decompiledJava").get().asFile.path} ${layout.buildDirectory.file("classes.dex").get().asFile.path}"
+            )
+        } else {
+            TODO("Not implemented")
         }
     }
 
@@ -156,7 +167,7 @@ tasks {
                 "adb shell am broadcast -n com.e1c.mobile/.Starter -a com.e1c.mobile.START_TEMPLATE -e templatepath $pathToCf/1cConfiguration/1cema.xml "
         )
     }
-    
+
 }
 
 fun runOnWindows(): Boolean = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")

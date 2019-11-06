@@ -10,6 +10,8 @@
 
 .field private Xi:Lcom/google/android/gms/maps/c;
 
+.field private extension:Lcom/e1c/mobile/MapImplExtension;
+
 .field private final Xj:Ljava/util/ArrayList;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -52,6 +54,10 @@
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/e1c/mobile/MapImpl;->Xk:Ljava/util/ArrayList;
+
+    new-instance v0, Lcom/e1c/mobile/MapImplExtension;
+    invoke-direct {v0, p0}, Lcom/e1c/mobile/MapImplExtension;-><init>(Lcom/e1c/mobile/MapImpl;)V
+    iput-object v0, p0, Lcom/e1c/mobile/MapImpl;->extension:Lcom/e1c/mobile/MapImplExtension;
 
     return-void
 .end method
@@ -363,7 +369,7 @@
 .end method
 
 .method kN()V
-    .locals 9
+    .locals 3
 
     invoke-virtual {p0}, Lcom/e1c/mobile/MapImpl;->getIntent()Landroid/content/Intent;
 
@@ -395,56 +401,19 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_0
+    # v0 - координаты; v1 - заголовки; v2 - extension;
+    iget-object v2, p0, Lcom/e1c/mobile/MapImpl;->extension:Lcom/e1c/mobile/MapImplExtension;
+    invoke-virtual {v2, v1, v0}, Lcom/e1c/mobile/MapImplExtension;->kN([Ljava/lang/String;[D)[Ljava/util/ArrayList;
 
-    array-length v2, v0
-
-    if-lez v2, :cond_0
-
+    # v0 - массив с результатами; v1 - координаты|опции маркеров; v2 - индекс в массиве
+    move-result-object v0
     const/4 v2, 0x0
+    aget-object v1, v0, v2
+    iput-object v1, p0, Lcom/e1c/mobile/MapImpl;->Xj:Ljava/util/ArrayList;
 
-    :goto_0
-    array-length v3, v1
-
-    if-ge v2, v3, :cond_0
-
-    new-instance v3, Lcom/google/android/gms/maps/model/LatLng;
-
-    mul-int/lit8 v4, v2, 0x2
-
-    aget-wide v5, v0, v4
-
-    add-int/lit8 v4, v4, 0x1
-
-    aget-wide v7, v0, v4
-
-    invoke-direct {v3, v5, v6, v7, v8}, Lcom/google/android/gms/maps/model/LatLng;-><init>(DD)V
-
-    iget-object v4, p0, Lcom/e1c/mobile/MapImpl;->Xj:Ljava/util/ArrayList;
-
-    invoke-virtual {v4, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    iget-object v4, p0, Lcom/e1c/mobile/MapImpl;->Xk:Ljava/util/ArrayList;
-
-    new-instance v5, Lcom/google/android/gms/maps/model/MarkerOptions;
-
-    invoke-direct {v5}, Lcom/google/android/gms/maps/model/MarkerOptions;-><init>()V
-
-    invoke-virtual {v5, v3}, Lcom/google/android/gms/maps/model/MarkerOptions;->c(Lcom/google/android/gms/maps/model/LatLng;)Lcom/google/android/gms/maps/model/MarkerOptions;
-
-    move-result-object v3
-
-    aget-object v5, v1, v2
-
-    invoke-virtual {v3, v5}, Lcom/google/android/gms/maps/model/MarkerOptions;->dS(Ljava/lang/String;)Lcom/google/android/gms/maps/model/MarkerOptions;
-
-    move-result-object v3
-
-    invoke-virtual {v4, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-
-    add-int/lit8 v2, v2, 0x1
-
-    goto :goto_0
+    const/4 v2, 0x1
+    aget-object v1, v0, v2
+    iput-object v1, p0, Lcom/e1c/mobile/MapImpl;->Xk:Ljava/util/ArrayList;
 
     :cond_0
     return-void

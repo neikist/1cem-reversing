@@ -2,6 +2,7 @@ import java.util.*
 
 plugins {
     id("base")
+    id("java")
     id("com.novoda.build-properties") version "0.4.1"
 }
 
@@ -16,6 +17,7 @@ val fileSrcApk = layout.projectDirectory.dir("sourceApk").asFileTree.singleFile
 val apkFilePath = fileSrcApk.path
 val apkName = fileSrcApk.nameWithoutExtension
 val packageName = "com.e1c.mobile"
+val targetApi = 28
 
 val androidSdkDir = localProperties["sdk.dir"]?.string?.trim() ?: error("Need define path to android sdk")
 
@@ -28,6 +30,19 @@ val buildToolsVersion = localProperties["buildToolsVersion"]?.string?.trim()
         ?: error("Need define sdk build tools version")
 
 val runOnWindows = runOnWindows()
+val separator = File.separator
+sourceSets {
+    main {
+        java {
+            val androidSdkFiles by files("$androidSdkDir${separator}platforms${separator}android-$targetApi${separator}android.jar")
+
+            setSrcDirs(listOf("src/java", "src/stubJava"))
+            exclude("stubJava/**")
+            compileClasspath = androidSdkFiles
+
+        }
+    }
+}
 
 tasks {
 
@@ -57,6 +72,18 @@ tasks {
         } else {
             TODO("Not implemented")
         }
+    }
+
+    compileJava.get().sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+    compileJava.get().targetCompatibility = JavaVersion.VERSION_1_8.toString()
+
+    compileJava.get().doLast {
+        val classesPath = layout.buildDirectory.dir("classes/java/main").get().asFile.invariantSeparatorsPath
+        val filesToDelete = files(layout.projectDirectory.dir("src/stubJava").asFileTree.map {
+            it.path.replace(Regex(".*stubJava"), classesPath).replace(".java", ".class")
+        })
+        delete(filesToDelete)
+
     }
 
     val copySmaliFiles = task("copySmaliFiles", type = Copy::class) {
@@ -95,7 +122,6 @@ tasks {
 
     val sign = task("sign", type = Exec::class) {
         dependsOn(pack)
-        val separator = File.separator
         if (runOnWindows) {
             commandLine(
                     "PowerShell",
@@ -121,7 +147,7 @@ tasks {
     assemble.get().dependsOn(sign)
 
     val installApk = task("installApk", type = Exec::class) {
-        //        dependsOn(assemble.get())
+        dependsOn(assemble.get())
         if (runOnWindows) {
             commandLine(
                     "PowerShell",

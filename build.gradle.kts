@@ -90,7 +90,7 @@ tasks {
             })
             commandLine(
                     "PowerShell",
-                    "d8.bat ${filesToCompileToDex.fold("") { acc, file -> acc + file.path + " " }} --min-api ${minApi} --output ${layout.buildDirectory.get().asFile.path}"
+                    "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}d8.bat ${filesToCompileToDex.fold("") { acc, file -> acc + file.path + " " }} --min-api ${minApi} --output ${layout.buildDirectory.get().asFile.path}"
             )
         } else {
             TODO("Not implemented")

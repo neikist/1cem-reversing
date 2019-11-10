@@ -18,8 +18,10 @@ val apkFilePath = fileSrcApk.path
 val apkName = fileSrcApk.nameWithoutExtension
 val packageName = "com.e1c.mobile"
 val targetApi = 28
+val minApi = 23
 
 val androidSdkDir = localProperties["sdk.dir"]?.string?.trim() ?: error("Need define path to android sdk")
+val pathToBaksmali = localProperties["baksmali.dir"]?.string?.trim() ?: error("define path to baksmali")
 
 val keystorePath = localProperties["keystore.path"]?.string?.trim() ?: error("Need define path to keystore")
 val keystorePassword = localProperties["keystore.password"]?.string?.trim() ?: error("Need define keystore password")
@@ -76,20 +78,48 @@ tasks {
 
     compileJava.get().sourceCompatibility = JavaVersion.VERSION_1_8.toString()
     compileJava.get().targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    compileJava.get().options.encoding = "UTF-8"
 
-    compileJava.get().doLast {
+    val compileToDex = task("compileToDex", type = Exec::class) {
+        dependsOn(compileJava.get())
         val classesPath = layout.buildDirectory.dir("classes/java/main").get().asFile.invariantSeparatorsPath
-        val filesToDelete = files(layout.projectDirectory.dir("src/stubJava").asFileTree.map {
-            it.path.replace(Regex(".*stubJava"), classesPath).replace(".java", ".class")
-        })
-        delete(filesToDelete)
 
+        if (runOnWindows) {
+            val filesToCompileToDex = files(layout.projectDirectory.dir("src/java").asFileTree.map {
+                it.path.replace(Regex(".*src\\\\java"), classesPath).replace(".java", ".class")
+            })
+            commandLine(
+                    "PowerShell",
+                    "d8.bat ${filesToCompileToDex.fold("") { acc, file -> acc + file.path + " " }} --min-api ${minApi} --output ${layout.buildDirectory.get().asFile.path}"
+            )
+        } else {
+            TODO("Not implemented")
+        }
+    }
+
+    val decompileOwnFilesToSmali = task("decompileOwnFilesToSmali", type = Exec::class) {
+        dependsOn(compileToDex)
+
+        if (runOnWindows) {
+            commandLine(
+                    "PowerShell",
+                    "java -jar ${pathToBaksmali}${separator}baksmali.jar d " +
+                            "${layout.buildDirectory.file("classes.dex").get().asFile.path} " +
+                            "-o ${layout.buildDirectory.dir("unpackedOwn").get().asFile.path}"
+            )
+        } else {
+            TODO("Not implemented")
+        }
     }
 
     val copySmaliFiles = task("copySmaliFiles", type = Copy::class) {
         dependsOn(unpack)
+        dependsOn(decompileOwnFilesToSmali)
 
         from(layout.projectDirectory.dir("src/smali").asFile.path) {
+            include("**/*.smali")
+        }
+        from(layout.buildDirectory.dir("unpackedOwn").get().asFile.path) {
             include("**/*.smali")
         }
 

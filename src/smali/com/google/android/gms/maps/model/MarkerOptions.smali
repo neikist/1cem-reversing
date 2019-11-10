@@ -271,6 +271,15 @@
     return-object v0
 .end method
 
+.method public final icon(Lcom/google/android/gms/maps/model/a;)Lcom/google/android/gms/maps/model/MarkerOptions;
+    .locals 0
+
+    iput-object p1, p0, Lcom/google/android/gms/maps/model/MarkerOptions;->bSJ:Lcom/google/android/gms/maps/model/a;
+
+    return-object p0
+
+.end method
+
 .method public final c(Lcom/google/android/gms/maps/model/LatLng;)Lcom/google/android/gms/maps/model/MarkerOptions;
     .locals 1
 

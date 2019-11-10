@@ -14,4 +14,8 @@ public final class MarkerOptions {
         return this;
     }
 
+    public final MarkerOptions icon (a icon) {
+        return this;
+    }
+
 }

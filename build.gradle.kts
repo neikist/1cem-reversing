@@ -72,7 +72,8 @@ tasks {
                     "jadx.bat --no-debug-info --no-res --show-bad-code -j 1 --fs-case-sensitive -d ${layout.buildDirectory.dir("decompiledJava").get().asFile.path} ${layout.buildDirectory.file("classes.dex").get().asFile.path}"
             )
         } else {
-            TODO("Not implemented")
+            executable("sh")
+            args("-c", "jadx --no-debug-info --no-res --show-bad-code -j 1 --fs-case-sensitive -d ${layout.buildDirectory.dir("decompiledJava").get().asFile.path} ${layout.buildDirectory.file("classes.dex").get().asFile.path}")
         }
     }
 
@@ -93,7 +94,11 @@ tasks {
                     "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}d8.bat ${filesToCompileToDex.fold("") { acc, file -> acc + file.path + " " }} --min-api ${minApi} --output ${layout.buildDirectory.get().asFile.path}"
             )
         } else {
-            TODO("Not implemented")
+            executable("sh")
+            val filesToCompileToDex = files(layout.projectDirectory.dir("src/java").asFileTree.map {
+                it.path.replace(Regex(".*src/java"), classesPath).replace(".java", ".class")
+            })
+            args("-c", "${androidSdkDir}${separator}build-tools$separator$buildToolsVersion${separator}d8 ${filesToCompileToDex.fold("") { acc, file -> acc + file.path + " " }} --min-api ${minApi} --output ${layout.buildDirectory.get().asFile.path}")
         }
     }
 
@@ -108,7 +113,10 @@ tasks {
                             "-o ${layout.buildDirectory.dir("unpackedOwn").get().asFile.path}"
             )
         } else {
-            TODO("Not implemented")
+            executable("sh")
+            args("-c", "java -jar ${pathToBaksmali}${separator}baksmali.jar d " +
+                            "${layout.buildDirectory.file("classes.dex").get().asFile.path} " +
+                            "-o ${layout.buildDirectory.dir("unpackedOwn").get().asFile.path}")
         }
     }
 
@@ -185,43 +193,62 @@ tasks {
             )
         } else {
             executable("sh")
-            args("-c", "")
-            TODO("Пока не реализовал")
+            args("-c", "adb install ${layout.buildDirectory.file("$apkName.apk").get().asFile.path}")
         }
     }
 
     val grantPermissionReadStorage = task("grantPermissionReadStorage", type = Exec::class) {
         dependsOn(installApk)
-        commandLine(
+        if (runOnWindows) {
+            commandLine(
                 "PowerShell",
                 "adb shell pm grant $packageName android.permission.READ_EXTERNAL_STORAGE"
-        )
+            )
+        } else {
+            executable("sh")
+            args("-c", "adb shell pm grant $packageName android.permission.READ_EXTERNAL_STORAGE")
+        }
     }
 
     val pathToCf = "/storage/emulated/0/Download"
     val push1cCf = task("push1cCf", type = Exec::class) {
         dependsOn(grantPermissionReadStorage)
-        commandLine(
+        if (runOnWindows) {
+            commandLine(
                 "PowerShell",
                 "adb push ${layout.projectDirectory.dir("src/1cConfiguration").asFile.path} $pathToCf"
-        )
+            )
+        } else {
+            executable("sh")
+            args("-c", "adb push ${layout.projectDirectory.dir("src/1cConfiguration").asFile.path} $pathToCf")
+        }
     }
 
     val run1cApk = task("run1cApk", type = Exec::class) {
         dependsOn(push1cCf)
-        commandLine(
+        if (runOnWindows) {
+            commandLine(
                 "PowerShell",
                 "adb shell am start -n com.e1c.mobile/.App -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
-        )
+            )
+        } else {
+            executable("sh")
+            args("-c", "adb shell am start -n com.e1c.mobile/.App -a android.intent.action.MAIN -c android.intent.category.LAUNCHER")
+        }
 
     }
 
     val runOnDevice = task("runOnDevice", type = Exec::class) {
         dependsOn(run1cApk)
-        commandLine(
+        if (runOnWindows) {
+            commandLine(
                 "PowerShell",
                 "adb shell am broadcast -n com.e1c.mobile/.Starter -a com.e1c.mobile.START_TEMPLATE -e templatepath $pathToCf/1cConfiguration/1cema.xml "
-        )
+            )
+        } else {
+            executable("sh")
+            args("-c", "adb shell am broadcast -n com.e1c.mobile/.Starter -a com.e1c.mobile.START_TEMPLATE -e templatepath $pathToCf/1cConfiguration/1cema.xml ")
+        }
     }
 
 }
